@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { animateScroll as scroll } from 'react-scroll';
 import { Box } from 'CommonStyle/Common.styled';
 import { FormSerch } from './Form/Form';
 import { Gallery } from './ImageGallery/ImageGallery';
 import { ApiServise } from './api/Api';
+import { WarningMessage } from './WarningMessage/WarningMessage';
 import { Modal } from './Modal/Modal';
 import { LoadMoreBtn } from './Button/Button';
 
@@ -21,41 +22,20 @@ export const App = () => {
   //
   useEffect(() => {
     if (serchQuery === '') return;
-    const apiDataService = (hits, totalHits) => {
-      setData(prevState => prevState.concat(hits));
-      setShowBtn(true);
-
-      if (page * 12 > totalHits) {
-        setShowBtn(false);
-      }
-      if (totalHits === 0) {
-        return toast.error(
-          'Sorry, there are no images matching your search query. Please try again.',
-          {
-            theme: 'dark',
-          }
-        );
-      }
-
-      if (totalHits < 12 && hits.length === 0) {
-        return toast.warn(
-          'Were sorry, but youve reached the end of search results.',
-          {
-            theme: 'dark',
-          }
-        );
-      }
-    };
-    ApiServise(serchQuery, apiDataService, page);
-    return () => {};
-  }, [page, serchQuery]);
-
-  useEffect(() => {
-    if (serchQuery === '') return;
-    setTimeout(() => {
-      setShowSpiner(false);
-    }, 400);
     setShowSpiner(true);
+    ApiServise(serchQuery, page)
+      .then(({ data: { hits, totalHits } }) => {
+        setData(prevState => prevState.concat(hits));
+        setShowBtn(true);
+        WarningMessage(page, totalHits, hits, setShowBtn);
+      })
+      .catch(erore => {
+        console.log(erore.message);
+      })
+      .finally(() => {
+        setShowSpiner(false);
+      });
+    return () => {};
   }, [page, serchQuery]);
 
   const handeClick = e => {
