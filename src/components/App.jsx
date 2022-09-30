@@ -10,6 +10,7 @@ import { ApiServise } from './api/Api';
 import { WarningMessage } from './WarningMessage/WarningMessage';
 import { Modal } from './Modal/Modal';
 import { LoadMoreBtn } from './Button/Button';
+import { useLayoutEffect } from 'react';
 
 export const App = () => {
   const [showBtn, setShowBtn] = useState(false);
@@ -38,6 +39,12 @@ export const App = () => {
     return () => {};
   }, [page, serchQuery]);
 
+  useLayoutEffect(() => {
+    scroll.scrollMore(1150, {
+      smooth: true,
+    });
+  }, [page, serchQuery]);
+
   const handeClick = e => {
     e.preventDefault();
     setLargePage(e.currentTarget.name);
@@ -56,11 +63,6 @@ export const App = () => {
 
   const handleClickLoadMoreBtn = e => {
     setPage(prevs => prevs + 1);
-    setTimeout(() => {
-      scroll.scrollMore(1150, {
-        smooth: true,
-      });
-    }, 700);
   };
 
   return (
